@@ -32,7 +32,7 @@ class UserService implements UserInterface
 
     public function logout($request)
     {
-        $request->user()->currentAccessToken()->delete();
+        auth('sanctum')->user()->tokens()->delete();
     }
 
     private function generateToken($user)
