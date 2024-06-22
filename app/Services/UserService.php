@@ -37,6 +37,6 @@ class UserService implements UserInterface
 
     private function generateToken($user)
     {
-        return !is_null($user) ? $user->createToken('access-token', $user->roles->toArray())->plainTextToken : "";
+        return !is_null($user) ? $user->createToken('token')->plainTextToken : "";
     }
 }

@@ -37,7 +37,7 @@ class TaskService implements TaskInterface
     {
         $user = User::findOrFail($id);
 
-        return TaskResource::collection($user->tasks());
+        return TaskResource::collection($user->tasks);
     }
 
     public function deleteTask($id, $userId)

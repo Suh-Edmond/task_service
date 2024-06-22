@@ -18,12 +18,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('public/auth')->group(function () {
     Route::post('/login', [UserController::class, 'loginUser']);
-    Route::post('/signup', [UserController::class, 'createUser']);
+    Route::post('/register', [UserController::class, 'createUser']);
     Route::post('/logout', [UserController::class, 'logoutUser']);
 });
 
 Route::middleware('auth:sanctum')->group(function (){
-    Route::prefix('tasks')->group(function (){
+
+    Route::prefix('protected/tasks')->group(function (){
        Route::post('/create', [TaskController::class, 'createTask']);
        Route::put('/{id}/update', [TaskController::class, 'updateTask']);
        Route::get('/users/{id}', [TaskController::class, 'fetchUserTasks']);

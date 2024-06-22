@@ -23,20 +23,20 @@ class UserController extends Controller
     {
         $this->userService->createUser($createUserRequest);
 
-        $this->sendResponse("User Created Successfully", 204);
+        return $this->sendResponse("User Created Successfully", 204);
     }
 
     public function loginUser(UuserLoginRequest $request)
     {
         $data = $this->userService->login($request);
 
-        $this->sendResponse($data, 200);
+        return $this->sendResponse($data, 200);
     }
 
     public function logoutUser(Request $request)
     {
         $this->userService->logout($request);
 
-        $this->sendResponse("Logout successful", 204);
+        return $this->sendResponse("Logout successful", 204);
     }
 }
