@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +15,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+Route::prefix('public/auth')->group(function () {
+    Route::post('/login', [UserController::class, 'loginUser']);
+    Route::post('/register', [UserController::class, 'createUser']);
+    Route::post('/logout', [UserController::class, 'logoutUser']);
+});
+
+Route::middleware('auth:sanctum')->group(function (){
+
+    Route::prefix('protected/tasks')->group(function (){
+       Route::post('/create', [TaskController::class, 'createTask']);
+       Route::put('/{id}/update', [TaskController::class, 'updateTask']);
+       Route::get('/users/{id}', [TaskController::class, 'fetchUserTasks']);
+       Route::delete('{id}/users/{userId}', [TaskController::class, 'deleteTasks']);
+    });
 });
