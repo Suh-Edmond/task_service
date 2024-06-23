@@ -40,8 +40,7 @@ class TaskTest extends TestCase
             'password'=>'Summer1343',
         ])->create();
 
-        $userId = User::findOrFail($created->id);
-
+        $userId = User::findOrFail($created->id)->id;
         $response = $this->post('/api/protected/tasks/create', [
             'title'         => 'Test',
             'description'   => 'description',
@@ -50,8 +49,6 @@ class TaskTest extends TestCase
             'user_id'     => $userId,
 
         ]);
-
-
         $task = Task::first();
 
         $response->assertOk();
