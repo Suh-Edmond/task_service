@@ -26,6 +26,7 @@ This API provides the following Services
 - Setup your database connection in your *.env* file
 - Run the migration using the command *php artisan migrate*
 - You can view all the endpoints exposed from the /routes/api.php file.
+- Serve the application using php artisan serve
 
 ###  
 - Register: #### https://localhost:8000/api/public/auth/register ####
