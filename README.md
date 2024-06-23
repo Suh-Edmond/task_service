@@ -27,7 +27,7 @@ This API provides the following Services
 - Run the migration using the command *php artisan migrate*
 - You can view all the endpoints exposed from the /routes/api.php file.
 - Serve the application using php artisan serve
-- The app runs at  #### http://localhost:9000
+- The app runs at  #### http://localhost:8000 and is already connected to the frontend application
 
 ###  
 - Register: #### https://localhost:8000/api/public/auth/register ####
