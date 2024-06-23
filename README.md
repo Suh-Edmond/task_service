@@ -16,7 +16,8 @@ This API provides the following Services
 - Laravel Sanctum for authentication
 
 ### Server Requirements
-- PHP 83
+- PHP 8.3
+- MySQL
 #### Noted
 ## API Design
 ### How to start locally
