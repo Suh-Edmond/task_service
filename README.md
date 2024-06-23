@@ -26,7 +26,6 @@ This API provides the following Services
 - Generate the app key by running *php artisan key: generate*
 - Setup your database connection in your *.env* file
 - Run the migration using the command *php artisan migrate*
-- Seed the database with the started data
 - You can view all the endpoints exposed from the /routes/api.php file.
 
 ###  
