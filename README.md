@@ -18,8 +18,7 @@ This API provides the following Services
 ### Server Requirements
 - PHP 8.3
 - MySQL
-#### Noted
-## API Design
+ 
 ### How to start locally
 - Clone the project using the link, the latest code is on the *master* branch
 - Open it in your favourite IDE and run Composer install
