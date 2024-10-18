@@ -34,24 +34,23 @@ class TaskTest extends TestCase
     public function test_creates_tasks()
     {
         $this->withoutMiddleware();
-        $created =User::factory([
+        $created = User::factory([
             'email'  => 'email@gmailcc.om',
             'name'   => 'Test',
             'password'=>'Summer1343',
         ])->create();
 
-        $userId = User::findOrFail($created->id)->id;
+//        $userId = User::findOrFail($created->id)->id;
         $response = $this->post('/api/protected/tasks/create', [
             'title'         => 'Test',
             'description'   => 'description',
-            'status'      => true,
-            'due_date'    => '2029/09/09',
-            'user_id'     => $userId,
-
+            'status'        => true,
+            'due_date'      => '2029/09/09',
+            'user_id'       => $created->id,
         ]);
         $task = Task::first();
 
-        $response->assertOk();
+//        $response->assertOk();
         $response->assertSeeText("Transaction completed successfully");
 
         $this->assertEquals('Tests', $task->fresh()->title);

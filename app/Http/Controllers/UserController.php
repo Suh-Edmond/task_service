@@ -18,6 +18,11 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    /**
+     * Create User
+     * @param CreateUserRequest $createUserRequest
+     * @return \Illuminate\Http\JsonResponse
+     */
 
     public function createUser(CreateUserRequest $createUserRequest)
     {
@@ -26,6 +31,12 @@ class UserController extends Controller
         return $this->sendResponse("User Created Successfully", 204);
     }
 
+    /**
+     * Login user
+     * @param UuserLoginRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \App\Exceptions\UnAuthorizedException
+     */
     public function loginUser(UuserLoginRequest $request)
     {
         $data = $this->userService->login($request);
@@ -33,6 +44,11 @@ class UserController extends Controller
         return $this->sendResponse($data, 200);
     }
 
+    /**
+     * logout user
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logoutUser(Request $request)
     {
         $this->userService->logout($request);

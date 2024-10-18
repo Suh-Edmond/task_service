@@ -23,7 +23,11 @@ class TaskController extends Controller
         return $this->sendResponse($data, 200);
     }
 
-
+    /**
+     * Endpoint to create task
+     * @param CreateTaskRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function createTask(CreateTaskRequest $request)
     {
         $this->taskService->createTask($request);

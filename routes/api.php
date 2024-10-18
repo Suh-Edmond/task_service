@@ -24,7 +24,7 @@ Route::prefix('public/auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function (){
 
-    Route::prefix('protected/tasks')->group(function (){
+    Route::prefix('/protected/tasks')->group(function (){
        Route::post('/create', [TaskController::class, 'createTask']);
        Route::put('/{id}/update', [TaskController::class, 'updateTask']);
        Route::get('/users/{id}', [TaskController::class, 'fetchUserTasks']);
