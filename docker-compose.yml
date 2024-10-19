@@ -29,7 +29,7 @@ services:
         container_name: task_app_nginx
         restart: unless-stopped
         ports:
-            - 6162:80
+            - "80:80"
         depends_on:
             - task_app
         volumes:
@@ -55,6 +55,7 @@ services:
             - task_app_network
         volumes:
             -   task_app_mysql_data:/var/lib/mysql
+            -   ./docker-compose/mysql/my.cnf:/etc/mysql/my.cnf
 
 # PHP my admin
     task_app_phpmyadmin:
