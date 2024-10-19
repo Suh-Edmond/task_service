@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+
+# Laravel app
+    task_app:
+        build:
+            args:
+                user: task_app_user
+                uid: 1000
+            context: ./
+            dockerfile: Dockerfile
+        platform: linux/amd64
+        image: task_app_image
+        container_name: task_app_container
+        restart: unless-stopped
+        working_dir: /var/www
+        depends_on:
+            - task_app_mysql
+        volumes:
+            - ./:/var/www
+        networks:
+            - task_app_network
+
+# Nginx service
+    task_app_nginx:
+        platform: linux/amd64
+        image: nginx:alpine
+        container_name: task_app_nginx
+        restart: unless-stopped
+        ports:
+            - 6162:80
+        depends_on:
+            - task_app
+        volumes:
+            - ./:/var/www
+            - ./docker-compose/nginx/:/etc/nginx/conf.d
+        networks:
+            - task_app_network
+
+# MySQL service
+    task_app_mysql:
+        platform: linux/amd64
+        image: mysql:latest
+        container_name: task_app_mysql
+        restart: unless-stopped
+        ports:
+            - "3337:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USER}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - task_app_network
+        volumes:
+            -   task_app_mysql_data:/var/lib/mysql
+
+# PHP my admin
+    task_app_phpmyadmin:
+        image: phpmyadmin:5.2.1-apache
+        container_name: task_app_phpmyadmin
+        restart: unless-stopped
+        ports:
+            - "8383:80"
+        environment:
+            PMA_HOST: task_app_mysql
+            PMA_PORT: 3306
+            PMA_USER: ${PHP_MY_ADMIN_USER}
+            PMA_PASSWORD: ${DB_PASSWORD}
+        depends_on:
+            - task_app_mysql
+        networks:
+            - task_app_network
+
+networks:
+    task_app_network:
+        driver: bridge
+volumes:
+    task_app_mysql_data:
+        driver: local

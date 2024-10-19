@@ -13,7 +13,7 @@ class TaskService implements TaskInterface
 
     public function createTask($request)
     {
-        $user = User::findOrFail($request->userId);
+        $user = auth()->user();
         Task::create([
             'title' => $request->title,
             'description' => $request->description,
