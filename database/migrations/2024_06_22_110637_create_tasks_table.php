@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->longText('description');
             $table->date('due_date');
-            $table->boolean('status');
+            $table->enum('status', [\App\Constants\TaskStatus::PENDING, \App\Constants\TaskStatus::COMPLETE])->default(\App\Constants\TaskStatus::PENDING);
             $table->timestamps();
 
             $table->uuid('user_id');

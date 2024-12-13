@@ -6,7 +6,7 @@ use App\Constants\TaskStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CreateTaskRequest extends FormRequest
+class ToggleTaskStateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,9 @@ class CreateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'userId'       => 'required|exists:users,id',
-            'title'        => 'required|string|max:255',
-            'description'  =>'required|string|max:1000|min:10',
-            'due_date'     => 'required|date',
-            'status'       => ['required', Rule::in([TaskStatus::PENDING, TaskStatus::COMPLETE])]
+            'id'     => 'required|exists:tasks,id',
+            'status' => ['required', Rule::in([TaskStatus::PENDING, TaskStatus::COMPLETE])]
+
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\ToggleTaskStateRequest;
 use App\Services\TaskService;
 use App\Trait\ResponseTrait;
 use Illuminate\Support\Facades\Request;
@@ -18,12 +19,19 @@ class TaskController extends Controller
         $this->taskService = $taskService;
     }
 
-    public function fetchUserTasks($id)
+    /**
+     *
+     * @param $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fetchUserTasks($userId)
     {
-        $data = $this->taskService->fetchTasks($id);
+        $data = $this->taskService->fetchTasks($userId);
 
         return $this->sendResponse($data, 200);
     }
+
 
 
     public function createTask(CreateTaskRequest $request)
@@ -41,7 +49,7 @@ class TaskController extends Controller
         return $this->sendResponse("Task updated Success", 204);
     }
 
-    public function toggleTask(Request $request)
+    public function toggleTask(ToggleTaskStateRequest $request)
     {
         $data = $this->taskService->toggleTaskStatus($request);
 
