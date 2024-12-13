@@ -85,8 +85,8 @@ class TaskTest extends TestCase
     {
 
         $response = $this->put("/api/protected/tasks/".$this->task->id."/update", [
-            'title'         => 'title',
-            'description'   => 'description',
+            'title'         => 'title has  Change to something else',
+            'description'   => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
             'status'        => TaskStatus::COMPLETE,
             'due_date'      => '2024/09/09',
             'userId'     => $this->user->id,

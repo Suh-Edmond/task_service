@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->group(function (){
        Route::get('/users/{userId}', [TaskController::class, 'fetchUserTasks']);
        Route::delete('{id}/users/{userId}', [TaskController::class, 'deleteTasks']);
        Route::put('/toggle-status', [TaskController::class, 'toggleTask']);
-        Route::post('/logout', [UserController::class, 'logoutUser']);
     });
+
+    Route::post('/protected/auth/logout', [UserController::class, 'logoutUser']);
 });

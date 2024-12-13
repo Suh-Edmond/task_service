@@ -42,7 +42,7 @@ class TaskService implements TaskInterface
 
         $userTasks = $user->tasks();
 
-        if(isset($filter)){
+        if(isset($filter) && $filter != "ALL"){
             $userTasks = $userTasks->where('status', $filter);
         }
 
