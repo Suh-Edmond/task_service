@@ -31,38 +31,38 @@ class TaskTest extends TestCase
 
     }
 
-//    public function test_creates_tasks()
-//    {
-//        $this->withoutMiddleware();
-//        $created =User::factory([
-//            'email'  => 'email@gmailcc.om',
-//            'name'   => 'Test',
-//            'password'=>'Summer1343',
-//        ])->create();
-//
-//        $userId = User::findOrFail($created->id)->id;
-//        $response = $this->post('/api/protected/tasks/create', [
-//            'title'         => 'Test',
-//            'description'   => 'description',
-//            'status'      => true,
-//            'due_date'    => '2029/09/09',
-//            'user_id'     => $userId,
-//
-//        ]);
-//        $task = Task::first();
-//
-//        $response->assertOk();
-//        $response->assertSeeText("Transaction completed successfully");
-//
-//        $this->assertEquals('Tests', $task->fresh()->title);
-//        $this->assertEquals('description', $task->fresh()->description);
-//
-//        $this->assertEquals('status', $task->fresh()->status);
-//        $this->assertEquals('due_date', $task->fresh()->due_date);
-//
-//        $this->assertCount(1, Task::all());
-//
-//    }
+    public function test_creates_tasks()
+    {
+        $this->withoutMiddleware();
+        $created =User::factory([
+            'email'  => 'email@gmailcc.om',
+            'name'   => 'Test',
+            'password'=>'Summer1343',
+        ])->create();
+
+        $userId = User::findOrFail($created->id)->id;
+        $response = $this->post('/api/protected/tasks/create', [
+            'title'         => 'Test',
+            'description'   => 'description',
+            'status'      => true,
+            'due_date'    => '2029/09/09',
+            'user_id'     => $userId,
+
+        ]);
+        $task = Task::first();
+
+        $response->assertOk();
+        $response->assertSeeText("Transaction completed successfully");
+
+        $this->assertEquals('Tests', $task->fresh()->title);
+        $this->assertEquals('description', $task->fresh()->description);
+
+        $this->assertEquals('status', $task->fresh()->status);
+        $this->assertEquals('due_date', $task->fresh()->due_date);
+
+        $this->assertCount(1, Task::all());
+
+    }
 
     public function test_update_task()
     {
