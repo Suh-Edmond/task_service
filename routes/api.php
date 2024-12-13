@@ -29,5 +29,6 @@ Route::middleware('auth:sanctum')->group(function (){
        Route::put('/{id}/update', [TaskController::class, 'updateTask']);
        Route::get('/users/{id}', [TaskController::class, 'fetchUserTasks']);
        Route::delete('{id}/users/{userId}', [TaskController::class, 'deleteTasks']);
+       Route::put('/toggle-status', [TaskController::class, 'toggleTask']);
     });
 });

@@ -48,4 +48,15 @@ class TaskService implements TaskInterface
         }
         $task->delete();
     }
+
+    public function toggleTaskStatus($request)
+    {
+        $task = Task::find($request->id)->first();
+        if(!isset($task)){
+            throw new ResourceNotFoundException("Task not found", 404);
+        }
+        return $task->update([
+            'status' => $request['status']
+        ]);
+    }
 }

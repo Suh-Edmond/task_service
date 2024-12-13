@@ -12,4 +12,6 @@ interface TaskInterface {
     public function fetchTasks($id);
 
     public function deleteTask($id, $userId);
+
+    public function toggleTaskStatus($request);
 }

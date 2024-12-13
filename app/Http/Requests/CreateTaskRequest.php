@@ -22,10 +22,11 @@ class CreateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required',
-            'description' =>'required|string',
-            'due_date' => 'required',
-            'status' => 'required'
+            'userId'       => 'required|exists:users,id',
+            'title'        => 'required|string|max:255',
+            'description'  =>'required|string|max:1000|min:10',
+            'due_date'     => 'required|date',
+            'status'       => 'required|boolean'
         ];
     }
 }

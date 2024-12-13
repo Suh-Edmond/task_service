@@ -5,22 +5,44 @@ namespace Tests\Feature;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class TaskTest extends TestCase
 {
     use RefreshDatabase;
+    private User $user;
+    private Task $task;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory([
+            'email' => "johndoe@gmail.com",
+            "name" => "John Doe",
+            "password" => Hash::make("password")
+        ])->create();
 
+        $this->be($this->user);
+
+        $this->task = Task::factory([
+            'title'         => 'Test',
+            'description'   => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book",
+            'status'        => true,
+            'due_date'      => '2029/09/09',
+            'user_id'       => $this->user->id,
+        ])->create();
+
+
+    }
     public function test_returns_errors_for_invalid_fields()
     {
-        $this->withoutMiddleware();
 
         $response = $this->post('/api/protected/tasks/create', [
-            'title'     => '',
+            'title'         => '',
             'description'   => '',
-            'status'      => true,
+            'status'        => true,
             'due_date'      => '',
-            'user_id'                => '',
+            'user_id'       => 'fake_user_id',
 
         ]);
 
@@ -33,57 +55,40 @@ class TaskTest extends TestCase
 
     public function test_creates_tasks()
     {
-        $this->withoutMiddleware();
-        $created =User::factory([
-            'email'  => 'email@gmailcc.om',
-            'name'   => 'Test',
-            'password'=>'Summer1343',
-        ])->create();
-
-        $userId = User::findOrFail($created->id)->id;
-        $response = $this->post('/api/protected/tasks/create', [
-            'title'         => 'Test',
-            'description'   => 'description',
-            'status'      => true,
-            'due_date'    => '2029/09/09',
-            'user_id'     => $userId,
+        $response = $this->post('api/protected/tasks/create', [
+            'title'         => 'My First Task',
+            'description'   => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+            'status'        => true,
+            'due_date'      => '2029/09/09',
+            'userId'        => $this->user->id,
 
         ]);
-        $task = Task::first();
+        $task = Task::all();
+
 
         $response->assertOk();
-        $response->assertSeeText("Transaction completed successfully");
+        $this->assertEquals( "Task created Success", $response['data']);
+        $this->assertTrue($response['success']);
+        $this->assertEquals('My First Task', $task[1]->fresh()->title);
+        $this->assertEquals("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", $task[1]->fresh()->description);
 
-        $this->assertEquals('Tests', $task->fresh()->title);
-        $this->assertEquals('description', $task->fresh()->description);
+        $this->assertEquals(1, $task[1]->fresh()->status);
+        $this->assertEquals('2029/09/09', $task[1]->fresh()->due_date);
+        $this->assertEquals($this->user->id, $task[1]->fresh()->user_id);
 
-        $this->assertEquals('status', $task->fresh()->status);
-        $this->assertEquals('due_date', $task->fresh()->due_date);
-
-        $this->assertCount(1, Task::all());
+        $this->assertCount(2, Task::all());
 
     }
 
     public function test_update_task()
     {
-        $this->withoutMiddleware();
 
-        $user = User::factory()->create();
-        $task = Task::factory([
-            'title'         => 'Test',
+        $response = $this->put("/api/protected/tasks/".$this->task->id."/update", [
+            'title'         => 'title',
             'description'   => 'description',
-            'status'      => true,
-            'due_date'    => '2029/09/09',
-            'user_id'     => $user->id,
-        ])->create();
-
-        Task::findOrFail($task->id);
-
-        $response = $this->put("/api/protected/tasks/".$task->id."/update", [
-            'title'         => 'ttile',
-            'description' => 'description',
-            'status'     => true,
-            'due_date' => '2024/09/09'
+            'status'        => true,
+            'due_date'      => '2024/09/09',
+            'userId'     => $this->user->id,
         ]);
 
         $response->assertOk();
@@ -97,36 +102,30 @@ class TaskTest extends TestCase
 
     public function test_fetch_tasks_return_all_tasks()
     {
-        $this->withoutMiddleware();
 
-        $user = User::factory()->create();
-        Task::factory([
-            'title'         => 'Test',
-            'description'   => 'description',
-            'status'      => true,
-            'due_date'    => '2029/09/09',
-            'user_id'     => $user->id,
-        ])->create();
-
-        $response = $this->get("/api/protected/tasks/users/".$user->id);
+        $response = $this->get("/api/protected/tasks/users/".$this->user->id);
 
         $response->assertOk();
     }
 
     public function test_delete_return_200_and_remove_task()
     {
-        $this->withoutMiddleware();
+        $response = $this->delete("/api/protected/tasks/".$this->task->id."/users/".$this->user->id);
 
-        $user = User::factory()->create();
+        $response->assertOk();
+    }
+
+    public function test_toggle_task_return_200_and_change_task_status()
+    {
         $task = Task::factory([
             'title'         => 'Test',
             'description'   => 'description',
             'status'      => true,
             'due_date'    => '2029/09/09',
-            'user_id'     => $user->id,
+            'user_id'     => $this->user->id,
         ])->create();
 
-        $response = $this->delete("/api/protected/tasks/".$task->id."/users/".$user->id);
+        $response = $this->delete("/api/protected/tasks/".$task->id."/users/".$this->user->id);
 
         $response->assertOk();
     }
