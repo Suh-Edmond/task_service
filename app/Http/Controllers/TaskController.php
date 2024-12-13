@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateTaskRequest;
 use App\Services\TaskService;
 use App\Trait\ResponseTrait;
+use Illuminate\Support\Facades\Request;
+
 
 class TaskController extends Controller
 {
@@ -37,6 +39,13 @@ class TaskController extends Controller
         $this->taskService->updateTask($request, $id);
 
         return $this->sendResponse("Task updated Success", 204);
+    }
+
+    public function toggleTask(Request $request)
+    {
+        $data = $this->taskService->toggleTaskStatus($request);
+
+        return $this->sendResponse($data, 200);
     }
 
 

@@ -3,29 +3,58 @@
 namespace Tests\Unit;
 
 use App\Exceptions\ResourceNotFoundException;
-use App\Models\Task;
+use App\Http\Requests\CreateTaskRequest;
+ use App\Models\Task;
 use App\Models\User;
 use App\Services\TaskService;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\Request;
+ use Mockery\MockInterface;
 use Tests\TestCase;
 
 class TaskServiceTest extends TestCase
 {
     use DatabaseMigrations;
-
     private TaskService $taskService;
-    private Request  $data;
+    private CreateTaskRequest $data;
+    private User $user;
+    private Task $task;
+
+    private Generator $faker;
 
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->faker = new Generator();
+
         $this->taskService = new TaskService();
 
-        $this->data = new Request(['userId' => '3456349503459034534535','title'=> 'Test',
-            'description' => 'description', 'status' => true, 'due_date'=> "2023/09/09", 'id' => "3456349503459034534535"]);
+        $this->user = User::factory([
+            'email'  => 'email@gmailcc.om',
+            'name'   => 'Test',
+            'password'=>'Summer1343',
+            'id' => "3456349503459034534535"
+        ])->create();
+
+        $this->task = Task::factory([
+            'title'         => "My New Task",
+            'description'   => "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation",
+            'status'        =>  true,
+            'due_date'      =>  "2025/12/12",
+            'user_id'       =>  $this->user->id
+        ])->create();
+
+        $this->data = new CreateTaskRequest([
+            'userId' => $this->user->id,
+            'title'=> 'My Task Title',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation',
+            'status' => true,
+            'due_date'=> "2025/09/09",
+        ]);
+
     }
 
     public function tearDown(): void
@@ -35,98 +64,100 @@ class TaskServiceTest extends TestCase
 
     public function test_create_return_model_not_found(): void
     {
-        $userMock = $this->getMockBuilder(User::class)->addMethods(['firstOrFail'])->getMock();
+        $this->data['userId'] = "435234";
+        $userMock = $this->mock(User::class, function (MockInterface $mock){
+            $mock->shouldReceive('findOrFail')->andReturnNull();
+        });
 
-        $userMock->expects($this->once())->method('firstOrFail')->will($this->returnValue(null));
-
-        $userMock->firstOrFail();
+        $userMock->findOrFail();
 
         $this->expectException(ModelNotFoundException::class);
-        $this->expectExceptionMessage("No query results for model [App\Models\User] 3456349503459034534535");
+        $this->expectExceptionMessage("No query results for model [App\Models\User] ".$this->data['userId']);
+
 
         $this->taskService->createTask($this->data);
     }
 
     public function test_create_return_success_after_created_task(): void
     {
-        $user = User::factory([
-            'email'  => 'email@gmailcc.om',
-            'name'   => 'Test',
-            'password'=>'Summer1343',
-            'id' => "3456349503459034534535"
-        ])->create();
 
-        $userMock = $this->getMockBuilder(User::class)->addMethods(['findOrFail'])->getMock();
-
-        $userMock->expects($this->once())->method('findOrFail')->willReturn($user);
+        $userMock = $this->mock(User::class, function (MockInterface $mock){
+            $mock->shouldReceive('findOrFail')->andReturn($this->user);
+        });
 
         $userMock->findOrFail($this->data['userId']);
 
         $this->taskService->createTask($this->data);
 
-        $this->assertDatabaseCount(Task::class, 1);
+        $this->assertDatabaseCount(Task::class, 2);
         $this->assertDatabaseHas(Task::class, ['title' => $this->data['title']]);
         $this->assertDatabaseHas(Task::class, ['description' => $this->data['description']]);
         $this->assertDatabaseHas(Task::class, ['due_date' => $this->data['due_date']]);
         $this->assertDatabaseHas(Task::class, ['status' => $this->data['status']]);
     }
 
-    public function test_update_return_snot_found_when_task_not_found(): void
+    public function test_update_return_not_found_when_task_not_found(): void
     {
 
-        $taskMock = $this->getMockBuilder(Task::class)->addMethods(['findOrFail'])->getMock();
+        $updatedData = new CreateTaskRequest([
+            'userId'       => $this->user->id,
+            'title'        => 'My Task Title Change',
+            'description'  => 'Some task description change',
+            'status'       => true,
+            'due_date'     => "2024/12/13",
+            'id'           => $this->task->id
+        ]);
 
-        $taskMock->expects($this->once())->method('findOrFail')->willReturn(null);
+        $taskMock = $this->mock(Task::class, function (MockInterface $mock){
+            $mock->shouldReceive('findOrFail')->andReturnNull();
+        });
+
 
         $taskMock->findOrFail($this->data['id']);
 
         $this->expectException(ModelNotFoundException::class);
-        $this->expectExceptionMessage("No query results for model [App\Models\Task] 3456349503459034534535");
+        $this->expectExceptionMessage("No query results for model [App\Models\Task]");
 
-        $this->taskService->updateTask($this->data, $this->data['id']);
+        $this->taskService->updateTask($updatedData, $this->data['id']);
     }
 
     public function test_update_return_success_after_update_task(): void
     {
-        $user = User::factory()->create();
+        $updatedData = new CreateTaskRequest([
+            'userId'       => $this->user->id,
+            'title'        => 'My Task Title Change',
+            'description'  => 'Some task description change',
+            'status'       =>  true,
+            'due_date'     => "2024/12/13",
+            'id'           => $this->task->id
+        ]);
 
-        $task = Task::factory([
-            'title'  => $this->data['title'],
-            'description'   => $this->data['description'],
-            'status'=>$this->data['status'],
-            'due_date' => $this->data['due_date'],
-            'id' => $this->data['id'],
-            'user_id' => $user->id
-        ])->create();
-
-        $taskMock = $this->getMockBuilder(Task::class)->addMethods(['findOrFail'])->getMock();
-
-        $taskMock->expects($this->once())->method('findOrFail')->willReturn($task);
+        $taskMock = $this->mock(Task::class, function (MockInterface $mock){
+            $mock->shouldReceive('findOrFail')->andReturn($this->task);
+        });
 
         $taskMock->findOrFail($this->data['id']);
 
-        $this->taskService->updateTask($this->data, $this->data['id']);
+        $this->taskService->updateTask($updatedData, $updatedData['id']);
 
         $this->assertDatabaseCount(Task::class, 1);
-        $this->assertDatabaseHas(Task::class, ['title' => $this->data['title']]);
-        $this->assertDatabaseHas(Task::class, ['description' => $this->data['description']]);
-        $this->assertDatabaseHas(Task::class, ['due_date' => $this->data['due_date']]);
-        $this->assertDatabaseHas(Task::class, ['status' => $this->data['status']]);
+        $this->assertDatabaseHas(Task::class, ['title' => $updatedData['title']]);
+        $this->assertDatabaseHas(Task::class, ['description' => $updatedData['description']]);
+        $this->assertDatabaseHas(Task::class, ['due_date' => $updatedData['due_date']]);
+        $this->assertDatabaseHas(Task::class, ['status' => $updatedData['status']]);
     }
 
     public function test_fetch_user_tasks_returns_not_found():void
     {
 
-
-
-        $userMock = $this->getMockBuilder(User::class)->addMethods(['findOrFail'])->getMock();
-
-        $userMock->expects($this->once())->method('findOrFail')->willReturn(null);
+        $userMock = $this->mock(User::class, function (MockInterface $mock){
+            $mock->shouldReceive('findOrFail')->andReturnNull();
+        });
 
         $userMock->findOrFail($this->data['userId']);
 
         $this->expectException(ModelNotFoundException::class);
-        $this->expectExceptionMessage("No query results for model [App\Models\User] 3456349503459034534535");
+        $this->expectExceptionMessage("No query results for model [App\Models\User]");
 
         $this->taskService->fetchTasks($this->data['id']);
     }
@@ -134,43 +165,26 @@ class TaskServiceTest extends TestCase
     public function test_fetch_user_tasks_returns_all_user_task():void
     {
 
-        $user = User::factory([
-            'email'  => 'email@gmailcc.om',
-            'name'   => 'Test',
-            'password'=>'Summer1343',
-            'id' => "3456349503459034534535"
-        ])->create();
+        $userMock = $this->mock(User::class, function (MockInterface $mock){
+            $mock->shouldReceive('findOrFail')->andReturn($this->user);
+        });
 
-          Task::factory([
-            'title'  => $this->data['title'],
-            'description'   => $this->data['description'],
-            'status'=>$this->data['status'],
-            'due_date' => $this->data['due_date'],
-            'id' => $this->data['id'],
-            'user_id' => $user->id
-        ])->create();
+        $userMock->findOrFail($this->user->id);
 
+        $response = $this->taskService->fetchTasks($this->user->id);
 
-        $userMock = $this->getMockBuilder(User::class)->addMethods(['findOrFail'])->getMock();
-
-        $userMock->expects($this->once())->method('findOrFail')->willReturn($user);
-
-        $userMock->findOrFail($this->data['userId']);
-
-        $response = $this->taskService->fetchTasks($this->data['id']);
-
-        $this->assertEquals(1,count($response));
+        $this->assertEquals(1, count($response));
     }
 
 
-    public function test_delete_user_task_returns_exception():void
+    public function test_delete_user_task_returns_exception_when_user_not_found():void
     {
 
-        $taskMock = $this->getMockBuilder(Task::class)->addMethods(['find'])->getMock();
+        $taskMock = $this->mock(Task::class, function (MockInterface $mock){
+            $mock->shouldReceive('first')->andReturnNull();
+        });
 
-        $taskMock->expects($this->once())->method('find')->willReturn(null);
-
-        $taskMock->find();
+        $taskMock->first();
 
         $this->expectException(ResourceNotFoundException::class);
         $this->expectExceptionMessage("Task not exist");
@@ -180,30 +194,33 @@ class TaskServiceTest extends TestCase
 
     public function test_delete_user_task_deletes_tasks():void
     {
-        $user = User::factory([
-            'email'  => 'email@gmailcc.om',
-            'name'   => 'Test',
-            'password'=>'Summer1343',
-            'id' => "3456349503459034534535"
-        ])->create();
 
-        $task = Task::factory([
-            'title'  => $this->data['title'],
-            'description'   => $this->data['description'],
-            'status'=>$this->data['status'],
-            'due_date' => $this->data['due_date'],
-            'id' => $this->data['id'],
-            'user_id' => $user->id
-        ])->create();
+        $taskMock = $this->mock(Task::class, function (MockInterface $mock){
+            $mock->shouldReceive('first')->andReturn($this->task);
+        });
 
-        $taskMock = $this->getMockBuilder(Task::class)->addMethods(['find'])->getMock();
+        $taskMock->first();
 
-        $taskMock->expects($this->once())->method('find')->willReturn($task);
-
-        $taskMock->find();
-
-        $this->taskService->deleteTask($this->data['id'], $this->data['userId']);
+        $this->taskService->deleteTask($this->task->id, $this->user->id);
 
         $this->assertDatabaseCount(Task::class, 0);
+    }
+
+    public function test_toggle_user_task_returns_exception_when_task_not_found():void
+    {
+        $request = new Request();
+        $request['id'] = $this->task->id;
+        $request['status'] = true;
+
+        $taskMock = $this->mock(Task::class, function (MockInterface $mock){
+            $mock->shouldReceive('first')->andReturnNull();
+        });
+
+        $taskMock->first();
+
+        $toggledTask = $this->taskService->toggleTaskStatus($request);
+
+
+        $this->assertTrue($toggledTask);
     }
 }
