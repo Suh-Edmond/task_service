@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Constants\TaskStatus;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,7 +28,7 @@ class TaskTest extends TestCase
         $this->task = Task::factory([
             'title'         => 'Test',
             'description'   => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book",
-            'status'        => true,
+            'status'        => TaskStatus::COMPLETE,
             'due_date'      => '2029/09/09',
             'user_id'       => $this->user->id,
         ])->create();
@@ -40,7 +41,7 @@ class TaskTest extends TestCase
         $response = $this->post('/api/protected/tasks/create', [
             'title'         => '',
             'description'   => '',
-            'status'        => true,
+            'status'        => TaskStatus::COMPLETE,
             'due_date'      => '',
             'user_id'       => 'fake_user_id',
 
@@ -58,7 +59,7 @@ class TaskTest extends TestCase
         $response = $this->post('api/protected/tasks/create', [
             'title'         => 'My First Task',
             'description'   => "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-            'status'        => true,
+            'status'        => TaskStatus::COMPLETE,
             'due_date'      => '2029/09/09',
             'userId'        => $this->user->id,
 
@@ -72,7 +73,7 @@ class TaskTest extends TestCase
         $this->assertEquals('My First Task', $task[1]->fresh()->title);
         $this->assertEquals("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s", $task[1]->fresh()->description);
 
-        $this->assertEquals(1, $task[1]->fresh()->status);
+        $this->assertEquals(TaskStatus::COMPLETE, $task[1]->fresh()->status);
         $this->assertEquals('2029/09/09', $task[1]->fresh()->due_date);
         $this->assertEquals($this->user->id, $task[1]->fresh()->user_id);
 
@@ -86,7 +87,7 @@ class TaskTest extends TestCase
         $response = $this->put("/api/protected/tasks/".$this->task->id."/update", [
             'title'         => 'title',
             'description'   => 'description',
-            'status'        => true,
+            'status'        => TaskStatus::COMPLETE,
             'due_date'      => '2024/09/09',
             'userId'     => $this->user->id,
         ]);
@@ -94,7 +95,7 @@ class TaskTest extends TestCase
         $response->assertOk();
         $response->assertJson([
             'message' => 204,
-            "success" => true,
+            "success" => TaskStatus::COMPLETE,
             'data' => 'Task updated Success'
         ]);
         $this->assertCount(1, Task::all());
@@ -117,15 +118,11 @@ class TaskTest extends TestCase
 
     public function test_toggle_task_return_200_and_change_task_status()
     {
-        $task = Task::factory([
-            'title'         => 'Test',
-            'description'   => 'description',
-            'status'      => true,
-            'due_date'    => '2029/09/09',
-            'user_id'     => $this->user->id,
-        ])->create();
 
-        $response = $this->delete("/api/protected/tasks/".$task->id."/users/".$this->user->id);
+        $response = $this->put("/api/protected/tasks/toggle-status", [
+            'id'            => $this->task->id,
+            'status'        => TaskStatus::COMPLETE,
+        ]);
 
         $response->assertOk();
     }

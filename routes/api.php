@@ -22,12 +22,12 @@ Route::prefix('public/auth')->group(function () {
     Route::post('/logout', [UserController::class, 'logoutUser']);
 });
 
-Route::middleware('auth:sanctum')->group(function (){
+Route::middleware(['auth:sanctum'])->group(function (){
 
     Route::prefix('protected/tasks')->group(function (){
        Route::post('/create', [TaskController::class, 'createTask']);
        Route::put('/{id}/update', [TaskController::class, 'updateTask']);
-       Route::get('/users/{id}', [TaskController::class, 'fetchUserTasks']);
+       Route::get('/users/{userId}', [TaskController::class, 'fetchUserTasks']);
        Route::delete('{id}/users/{userId}', [TaskController::class, 'deleteTasks']);
        Route::put('/toggle-status', [TaskController::class, 'toggleTask']);
     });

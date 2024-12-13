@@ -2,9 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Constants\TaskStatus;
 use App\Exceptions\ResourceNotFoundException;
 use App\Http\Requests\CreateTaskRequest;
- use App\Models\Task;
+use App\Http\Requests\ToggleTaskStateRequest;
+use App\Models\Task;
 use App\Models\User;
 use App\Services\TaskService;
 use Faker\Generator;
@@ -42,7 +44,7 @@ class TaskServiceTest extends TestCase
         $this->task = Task::factory([
             'title'         => "My New Task",
             'description'   => "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation",
-            'status'        =>  true,
+            'status'        =>  TaskStatus::COMPLETE,
             'due_date'      =>  "2025/12/12",
             'user_id'       =>  $this->user->id
         ])->create();
@@ -51,7 +53,7 @@ class TaskServiceTest extends TestCase
             'userId' => $this->user->id,
             'title'=> 'My Task Title',
             'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation',
-            'status' => true,
+            'status' => TaskStatus::COMPLETE,
             'due_date'=> "2025/09/09",
         ]);
 
@@ -103,7 +105,7 @@ class TaskServiceTest extends TestCase
             'userId'       => $this->user->id,
             'title'        => 'My Task Title Change',
             'description'  => 'Some task description change',
-            'status'       => true,
+            'status'       => TaskStatus::COMPLETE,
             'due_date'     => "2024/12/13",
             'id'           => $this->task->id
         ]);
@@ -127,7 +129,7 @@ class TaskServiceTest extends TestCase
             'userId'       => $this->user->id,
             'title'        => 'My Task Title Change',
             'description'  => 'Some task description change',
-            'status'       =>  true,
+            'status'       =>  TaskStatus::COMPLETE,
             'due_date'     => "2024/12/13",
             'id'           => $this->task->id
         ]);
@@ -208,9 +210,9 @@ class TaskServiceTest extends TestCase
 
     public function test_toggle_user_task_returns_exception_when_task_not_found():void
     {
-        $request = new Request();
+        $request = new ToggleTaskStateRequest();
         $request['id'] = $this->task->id;
-        $request['status'] = true;
+        $request['status'] = TaskStatus::COMPLETE;
 
         $taskMock = $this->mock(Task::class, function (MockInterface $mock){
             $mock->shouldReceive('first')->andReturnNull();
@@ -221,6 +223,6 @@ class TaskServiceTest extends TestCase
         $toggledTask = $this->taskService->toggleTaskStatus($request);
 
 
-        $this->assertTrue($toggledTask);
+        $this->assertEquals(TaskStatus::COMPLETE, $toggledTask['status']);
     }
 }

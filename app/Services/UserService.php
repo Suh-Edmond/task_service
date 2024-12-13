@@ -32,11 +32,11 @@ class UserService implements UserInterface
 
     public function logout($request)
     {
-        auth('sanctum')->user()->tokens()->delete();
+        $request->user()->tokens()->delete();
     }
 
     private function generateToken($user)
     {
-        return !is_null($user) ? $user->createToken('token')->plainTextToken : "";
+        return $user->createToken($user->id.'-ApiAuthToken')->plainTextToken;
     }
 }
