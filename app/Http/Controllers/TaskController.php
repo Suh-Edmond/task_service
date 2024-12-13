@@ -6,8 +6,7 @@ use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\ToggleTaskStateRequest;
 use App\Services\TaskService;
 use App\Trait\ResponseTrait;
-use Illuminate\Support\Facades\Request;
-
+use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -19,15 +18,10 @@ class TaskController extends Controller
         $this->taskService = $taskService;
     }
 
-    /**
-     *
-     * @param $id
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function fetchUserTasks($userId)
+
+    public function fetchUserTasks($userId, Request $request)
     {
-        $data = $this->taskService->fetchTasks($userId);
+        $data = $this->taskService->fetchTasks($userId, $request);
 
         return $this->sendResponse($data, 200);
     }
