@@ -151,6 +151,11 @@ class TaskServiceTest extends TestCase
 
     public function test_fetch_user_tasks_returns_not_found():void
     {
+        $request = new Request();
+        $request['page'] = 1;
+        $request['per_page'] = 5;
+        $request['filter'] = "";
+        $request['sortBy'] = "";
 
         $userMock = $this->mock(User::class, function (MockInterface $mock){
             $mock->shouldReceive('findOrFail')->andReturnNull();
@@ -161,11 +166,16 @@ class TaskServiceTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
         $this->expectExceptionMessage("No query results for model [App\Models\User]");
 
-        $this->taskService->fetchTasks($this->data['id']);
+        $this->taskService->fetchTasks($this->data['id'], $request);
     }
 
     public function test_fetch_user_tasks_returns_all_user_task():void
     {
+        $request = new Request();
+        $request['page'] = 1;
+        $request['per_page'] = 5;
+        $request['filter'] = TaskStatus::COMPLETE;
+        $request['sortBy'] = "DATE_ASC";
 
         $userMock = $this->mock(User::class, function (MockInterface $mock){
             $mock->shouldReceive('findOrFail')->andReturn($this->user);
@@ -173,7 +183,7 @@ class TaskServiceTest extends TestCase
 
         $userMock->findOrFail($this->user->id);
 
-        $response = $this->taskService->fetchTasks($this->user->id);
+        $response = $this->taskService->fetchTasks($this->user->id, $request);
 
         $this->assertEquals(1, count($response));
     }
@@ -213,6 +223,7 @@ class TaskServiceTest extends TestCase
         $request = new ToggleTaskStateRequest();
         $request['id'] = $this->task->id;
         $request['status'] = TaskStatus::COMPLETE;
+        $request['userId'] = $this->user->id;
 
         $taskMock = $this->mock(Task::class, function (MockInterface $mock){
             $mock->shouldReceive('first')->andReturnNull();

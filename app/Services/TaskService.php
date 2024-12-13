@@ -2,13 +2,10 @@
 
 namespace App\Services;
 
-use App\Constants\TaskStatus;
 use App\Exceptions\ResourceNotFoundException;
-use App\Http\Resources\TaskResource;
 use App\Interfaces\TaskInterface;
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Validation\Rule;
 
 class TaskService implements TaskInterface
 {
@@ -35,11 +32,35 @@ class TaskService implements TaskInterface
         ]);
     }
 
-    public function fetchTasks($id)
+    public function fetchTasks($id, $request)
     {
         $user = User::findOrFail($id);
 
-        return $user->tasks()->orderBy('created_at', 'DESC')->paginate(10);
+        $sort = $request->sortBy;
+
+        $filter = $request->filter;
+
+        $userTasks = $user->tasks();
+
+        if(isset($filter) && $filter != "ALL"){
+            $userTasks = $userTasks->where('status', $filter);
+        }
+
+        if (isset($sort)){
+            switch ($sort) {
+                case 'DATE_ASC':
+                    $userTasks->orderBy('created_at');
+                    break;
+                case 'DATE_DESC':
+                    $userTasks->orderBy('created_at', 'DESC');
+                    break;
+                default:
+                    $userTasks->orderByDesc('created_at');
+                    break;
+            }
+        }
+
+        return $userTasks->paginate($request->per_page);
     }
 
     public function deleteTask($id, $userId)
@@ -53,12 +74,12 @@ class TaskService implements TaskInterface
 
     public function toggleTaskStatus($request)
     {
-        $task = Task::find($request->id)->first();
+        $task = Task::where('id', $request->id)->where('user_id', $request->userId)->first();
         if(!isset($task)){
             throw new ResourceNotFoundException("Task not found", 404);
         }
         $task->update([
-            'status' => $request['status']
+            'status' => $request->status
         ]);
 
         return $task;

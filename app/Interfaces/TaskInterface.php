@@ -9,7 +9,7 @@ interface TaskInterface {
 
     public function updateTask($request, $id);
 
-    public function fetchTasks($id);
+    public function fetchTasks($id, $request);
 
     public function deleteTask($id, $userId);
 

@@ -25,8 +25,8 @@ class CreateTaskRequest extends FormRequest
     {
         return [
             'userId'       => 'required|exists:users,id',
-            'title'        => 'required|string|max:255',
-            'description'  =>'required|string|max:1000|min:10',
+            'title'        => 'required|string|max:255|min:10',
+            'description'  =>'required|string|max:1000|min:50',
             'due_date'     => 'required|date',
             'status'       => ['required', Rule::in([TaskStatus::PENDING, TaskStatus::COMPLETE])]
         ];

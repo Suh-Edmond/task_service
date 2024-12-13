@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('public/auth')->group(function () {
     Route::post('/login', [UserController::class, 'loginUser']);
     Route::post('/register', [UserController::class, 'createUser']);
-    Route::post('/logout', [UserController::class, 'logoutUser']);
+
 });
 
 Route::middleware(['auth:sanctum'])->group(function (){
@@ -31,4 +31,6 @@ Route::middleware(['auth:sanctum'])->group(function (){
        Route::delete('{id}/users/{userId}', [TaskController::class, 'deleteTasks']);
        Route::put('/toggle-status', [TaskController::class, 'toggleTask']);
     });
+
+    Route::post('/protected/auth/logout', [UserController::class, 'logoutUser']);
 });

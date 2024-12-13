@@ -24,9 +24,9 @@ class ToggleTaskStateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id'     => 'required|exists:tasks,id',
-            'status' => ['required', Rule::in([TaskStatus::PENDING, TaskStatus::COMPLETE])]
-
+            'id'         => 'required|exists:tasks,id',
+            'status'     => ['required', Rule::in([TaskStatus::PENDING, TaskStatus::COMPLETE])],
+            'userId'     => 'required|exists:users,id',
         ];
     }
 }
