@@ -122,6 +122,7 @@ class TaskTest extends TestCase
         $response = $this->put("/api/protected/tasks/toggle-status", [
             'id'            => $this->task->id,
             'status'        => TaskStatus::COMPLETE,
+            'userId'        => $this->user->id
         ]);
 
         $response->assertOk();
