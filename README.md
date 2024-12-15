@@ -28,7 +28,7 @@ This API provides the following Services
 - Generate the app key by running `php artisan key: generate`
 - Setup your database connection in your *.env* file
 - Run the migration using the command `php artisan migrate`
-- Serve the application using `php artisan serve` and visit **http://localhost:8000/docs/api** for the API documentation
+- Serve the application using `php artisan serve` and visit **http://13.60.224.90/docs/api#/** for the API documentation
 
 ### Run test
 - `php artisan test`
